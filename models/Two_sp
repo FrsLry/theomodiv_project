@@ -18,7 +18,7 @@ model{
   # For first year, init with from psi parameter (because the first needs to be fitted)
   for(i in 1:n_site){
     for(s in 1:n_species){
-      x[s,i,1] ~ dbern(psi[s]*detect[s,i,j]) 
+      x[s,i,1] ~ dbern(psi[s]*detect[i,j]) 
     }
   }
   
@@ -66,7 +66,7 @@ model{
 
 for(i in 1:n_site){
   for(j in 2:n_year){ #should this be 1? As it affects also whether species is detected at time 1
-      logit(detec[i,j]) = mu_day + beta_d * time_day[i,j] #what about here? -> instead of time_day, use obe (where the data are)
+      logit(detect[i,j]) = mu_day + beta_d * time_day[i,j] #what about here? -> instead of time_day, use obe (where the data are)
   }
   }
  	
