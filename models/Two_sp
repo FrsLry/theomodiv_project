@@ -8,6 +8,7 @@ model{
         x[s,i,j] ~ dbern( x[s,i,j-1] * (1-e[s,i,j]) + (1-x[s,i,j-1])*c[s,i,j] )
         #variante abundance
         #obs[s,i,j] ~ dbinom(x[s,i,j]*detect[s,i,j], N[s,i,j]) #this should make the likelihood be binomial with p as before but N equal to observation at the site at the time
+        #N[s,i,j] ~ dpois(N_rate[s,i,j])
         #x[s,i,j] ~ dbern( x[s,i,j-1] * (1-e[s,i,j]) + (1-x[s,i,j-1])*c[s,i,j] ) #this is the p you get from the model
       }
     }
@@ -29,6 +30,7 @@ model{
     for(s in 1:n_species){
       logit(e[s,i,j]) = mu_e[s] + gamma_e[s] * obs[switch[s],i,j-1] # elevation: beta_e[s] * elev[i,1]
       logit(c[s,i,j]) = mu_c[s] + gamma_c[s] * obs[switch[s],i,j-1] # elevation: beta_c[s] * elev[i,1]
+      #log(N_rate[s,i,j]) = mu_N[s] + gamma_N[s] * obs[switch[s],i,j-1] # elevation: beta_c[s] * elev[i,1]
     }
   }
   }
@@ -54,6 +56,9 @@ model{
 
     mu_day ~ dnorm(0, 10)
     beta_day ~ dnorm(0, 10)
+    
+    #mu_N ~ dnorm(0, 10)
+    #gamma_N ~ dnorm(0, 10)
 
   }
   
