@@ -4,7 +4,7 @@ model{
   for(i in 1:n_site){
     for(j in 2:n_year){
       for(s in 1:n_species){
-        obs[s,i,j] ~ dbern(x[s,i,j]*detect[s,i,j])
+        obs[s,i,j] ~ dbern(x[s,i,j]*detect[i,j])
         x[s,i,j] ~ dbern( x[s,i,j-1] * (1-e[s,i,j]) + (1-x[s,i,j-1])*c[s,i,j] )
         #variante abundance
         #obs[s,i,j] ~ dbinom(x[s,i,j]*detect[s,i,j], N[s,i,j]) #this should make the likelihood be binomial with p as before but N equal to observation at the site at the time
@@ -52,8 +52,8 @@ model{
     gamma_c[s] ~ dnorm(0, 0.1)T(,0)
   
 
-    mu_day[s] ~ dnorm(0, 10)
-    beta_day[s] ~ dnorm(0, 10)
+    mu_day ~ dnorm(0, 10)
+    beta_day ~ dnorm(0, 10)
 
   }
   
@@ -61,10 +61,7 @@ model{
 
 for(i in 1:n_site){
   for(j in 2:n_year){ #should this be 1? As it affects also whether species is detected at time 1
-    for(s in 1:n_species){
-      logit(detec[s,i,j]) = mu_day[s] + beta_d[s] * time_day[i,1] #what about here? -> instead of time_day, use obe (where the data are)
-      logit(detec[s,i,j]) = mu_day[s] + beta_d[s] * time_day[i,1]
-    }
+      logit(detec[i,j]) = mu_day + beta_d * time_day[i,j] #what about here? -> instead of time_day, use obe (where the data are)
   }
   }
  	
