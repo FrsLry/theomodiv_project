@@ -1,5 +1,6 @@
 ## Project
 library(jagsUI)
+library(dplyr)
 rm(list = ls())
 data <- readRDS("project/data/jags_data_par.rds")
 ## Select species
@@ -45,12 +46,29 @@ model {
 ## parameters to save
 params <- c('e', 'c', 'psi', 'detec', 'x')
 ## hyperparameters
-na <- 1000 ; ni <- 1000 ; nt <- 5 ; nb <- 500 ; nc <- 3
+na <- 1000 ; ni <- 1000 ; nt <- 5 ; nb <- 500 ; nc <- 1
 ## Generate initial values
 x = data_jags$obs
 x[is.na(x)] = sample(c(0,1), sum(is.na(x)), replace = T)
-inits <- rep(list(list(x = x)), 3)
+inits <- rep(list(list(x = x)), nc)
 ## Fit the model
 ## Call JAGS
-out1 <- jagsUI::jags(data_jags, inits, params, "project/models/simplest_model.txt", n.adapt = na, n.chains = nc,
+# out1 <- jagsUI::jags(data_jags, inits, params, "project/models/simplest_model.txt", n.adapt = na, n.chains = nc,
+#                      n.thin = nt, n.iter = ni, n.burnin = nb, parallel = TRUE)
+
+## Second model with detection covariates
+data$time <- data$time %>%
+  as.data.frame() %>%
+  mutate(mean = round(rowMeans(.[,-1], na.rm = T), 2)) %>%
+  mutate(across(where(is.numeric), ~ coalesce(., mean))) %>%
+  select(-mean) %>% as.matrix()
+
+data_jags <- list(obs = ifelse(data$C == 0, 0, 1),
+                  n_site = nrow(data$C),
+                  n_year = ncol(data$C),
+                  time_day = data$time)
+
+## Call JAGS
+out2 <- jagsUI::jags(data_jags, inits, params, "project/models/One_sp.txt", n.adapt = na, n.chains = nc,
                      n.thin = nt, n.iter = ni, n.burnin = nb, parallel = TRUE)
+saveRDS(out2, "project/model_output/blue_jay_detection.rds")

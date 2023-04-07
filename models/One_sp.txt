@@ -3,7 +3,7 @@ model{
   # Define the underlying model - as well as the observation process (although not used here - d = 1)
   for(i in 1:n_site){
     for(j in 2:n_year){
-        obs[i,j] ~ dbern(x[i,j]*detec)
+        obs[i,j] ~ dbern(x[i,j]*detec[i,j])
         x[i,j] ~ dbern( x[i,j-1] * (1-e) + (1-x[i,j-1])*c )
     }
   }
