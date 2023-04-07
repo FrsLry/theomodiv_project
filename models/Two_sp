@@ -8,6 +8,7 @@ model{
         x[s,i,j] ~ dbern( x[s,i,j-1] * (1-e[s,i,j]) + (1-x[s,i,j-1])*c[s,i,j] )
         #variante abundance
         #obs[s,i,j] ~ dbinom(x[s,i,j]*detect[s,i,j], N[s,i,j]) #this should make the likelihood be binomial with p as before but N equal to observation at the site at the time
+        #N[s,i,j] ~ dpois(N_rate[s,i,j])
         #x[s,i,j] ~ dbern( x[s,i,j-1] * (1-e[s,i,j]) + (1-x[s,i,j-1])*c[s,i,j] ) #this is the p you get from the model
       }
     }
@@ -17,7 +18,7 @@ model{
   # For first year, init with from psi parameter (because the first needs to be fitted)
   for(i in 1:n_site){
     for(s in 1:n_species){
-      x[s,i,1] ~ dbern(psi[s]*detect[s,i,j]) 
+      x[s,i,1] ~ dbern(psi[s]*detect[i,1]) 
     }
   }
   
@@ -29,6 +30,7 @@ model{
     for(s in 1:n_species){
       logit(e[s,i,j]) = mu_e[s] + gamma_e[s] * obs[switch[s],i,j-1] # elevation: beta_e[s] * elev[i,1]
       logit(c[s,i,j]) = mu_c[s] + gamma_c[s] * obs[switch[s],i,j-1] # elevation: beta_c[s] * elev[i,1]
+      #log(N_rate[s,i,j]) = mu_N[s] + gamma_N[s] * obs[switch[s],i,j-1] # elevation: beta_c[s] * elev[i,1]
     }
   }
   }
@@ -54,6 +56,9 @@ model{
 
     mu_day ~ dnorm(0, 10)
     beta_day ~ dnorm(0, 10)
+    
+    #mu_N ~ dnorm(0, 10)
+    #gamma_N ~ dnorm(0, 10)
 
   }
   
@@ -61,7 +66,7 @@ model{
 
 for(i in 1:n_site){
   for(j in 2:n_year){ #should this be 1? As it affects also whether species is detected at time 1
-      logit(detec[i,j]) = mu_day + beta_d * time_day[i,j] #what about here? -> instead of time_day, use obe (where the data are)
+      logit(detect[i,j]) = mu_day + beta_d * time_day[i,j] #what about here? -> instead of time_day, use obe (where the data are)
   }
   }
  	
