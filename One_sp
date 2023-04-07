@@ -18,8 +18,7 @@ model{
   logit(e) = e_log
   logit(c) = c_log
   logit(psi) = psi_log
-  logit(detec) = detec_log
-  #detec = 1
+  #logit(detec) = detec_log
 
   
   # Define prior for e/c/psi on logit scale
@@ -33,7 +32,7 @@ model{
   #detectability
   for(i in 1:n_site){
     for(j in 2:n_year){
-        logit(detec[i,j]) = mu_day + beta_d * time_day[i,j]
+        logit(detec[i,j]) = mu_day + beta_day * time_day[i,j]
     }
   }
 
