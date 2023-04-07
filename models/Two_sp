@@ -18,7 +18,7 @@ model{
   # For first year, init with from psi parameter (because the first needs to be fitted)
   for(i in 1:n_site){
     for(s in 1:n_species){
-      x[s,i,1] ~ dbern(psi[s]*detect[i,j]) 
+      x[s,i,1] ~ dbern(psi[s]*detect[i,1]) 
     }
   }
   
